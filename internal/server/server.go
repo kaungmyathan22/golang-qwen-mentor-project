@@ -29,8 +29,12 @@ func New(port string, logger *zap.Logger) *Server {
 	r.Use(zapMiddleware(logger))
 	r.Use(middleware.Recoverer)
 
-	r.Get("/health", handleHealth)
-	r.Get("/ready", handleReady)
+	r.Get("/ready", func(w http.ResponseWriter, r *http.Request) {
+		handleReady(w, r.WithContext(r.Context()))
+	})
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		handleHealth(w, r.WithContext(r.Context()))
+	})
 
 	return &Server{
 		http: &http.Server{

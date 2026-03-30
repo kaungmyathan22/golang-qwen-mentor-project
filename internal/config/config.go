@@ -4,7 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 // Config holds all application configuration sourced from environment variables.
@@ -18,7 +21,13 @@ type Config struct {
 }
 
 // Load reads configuration from environment variables and validates required fields.
+// It first attempts to load a .env file from the working directory; if the file
+// does not exist the call is silently skipped (real env vars always take precedence).
 func Load() (*Config, error) {
+	// godotenv.Load only sets a key when it is NOT already present in the environment,
+	// so actual env vars always win over the .env file.
+	_ = godotenv.Load()
+
 	cfg := &Config{
 		AppEnv:   os.Getenv("APP_ENV"),
 		Port:     envOr("APP_PORT", "8080"),
@@ -29,6 +38,16 @@ func Load() (*Config, error) {
 
 	if cfg.AppEnv == "" {
 		errs = append(errs, "APP_ENV is required")
+	}
+
+	port, err := strconv.Atoi(cfg.Port)
+	if err != nil || port < 1 || port > 65535 {
+		errs = append(errs, fmt.Sprintf("APP_PORT %q is invalid", cfg.Port))
+	}
+
+	validEnvs := map[string]bool{"development": true, "staging": true, "production": true}
+	if !validEnvs[cfg.AppEnv] {
+		errs = append(errs, fmt.Sprintf("APP_ENV %q is invalid", cfg.AppEnv))
 	}
 
 	validLevels := map[string]bool{"debug": true, "info": true, "warn": true, "error": true}
