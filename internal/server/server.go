@@ -92,6 +92,7 @@ func zapMiddleware(log *zap.Logger) func(http.Handler) http.Handler {
 				zap.Int("status", ww.Status()),
 				zap.Duration("latency", time.Since(start)),
 				zap.String("request_id", middleware.GetReqID(r.Context())),
+				zap.String("user_agent", r.UserAgent()),
 			)
 		})
 	}
