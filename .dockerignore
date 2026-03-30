@@ -1,0 +1,41 @@
+# .dockerignore
+
+# --- Your existing entries ---
+repomix-output.xml
+.git
+.gitignore
+.env
+.dockerignore
+
+# --- Add these for production ---
+
+# Build artifacts (avoid bloating context)
+*.exe
+*.test
+myapp
+go-service
+
+# Test & coverage artifacts
+coverage.out
+profile.cov
+*.coverprofile
+
+# IDE / Editor (not needed in container)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation (reduces image size)
+README.md
+docs/
+LICENSE
+
+# Local dev files
+*.log
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
